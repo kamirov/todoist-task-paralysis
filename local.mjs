@@ -2,7 +2,7 @@ import { handler } from "./index.mjs";
 
 const event = {
   queryStringParameters: {
-    labelKey: "chill",
+    labelKey: "work",
   },
 };
 
