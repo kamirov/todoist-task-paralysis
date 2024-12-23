@@ -57,6 +57,7 @@ export const handler = async (event) => {
   const sectionName = await getSectionName(randomTask.sectionId);
 
   const presentationTask = {
+    type: labelMap[labelKey],
     project: projectName,
     section: sectionName,
     content: randomTask.content,
