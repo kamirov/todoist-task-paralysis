@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "@doist/todoist-api-typescript": "^3.0.3",
+    "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "luxon": "^3.5.0"
+  },
+  "scripts": {
+    "local": "node local.mjs",
+    "build": "eval $(grep '^BUILD_FILENAME' .env) && zip -r $BUILD_FILENAME.zip index.mjs node_modules package.json yarn.lock",
+    "deploy": "eval $(grep -E '^(BUILD_FILENAME|AWS_LAMBDA_FUNCTION_NAME)' .env) && aws lambda update-function-code --function-name $AWS_LAMBDA_FUNCTION_NAME --zip-file fileb://$BUILD_FILENAME.zip > /dev/null 2>&1",
+    "deploy:full": "yarn build && yarn deploy"
+  }
+}
