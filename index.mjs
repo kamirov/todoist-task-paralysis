@@ -63,6 +63,7 @@ export const handler = async (event) => {
     section: sectionName,
     content: randomTask.content,
     url: randomTask.url,
+    taskCount: labeledTasks.length,
   };
 
   try {
