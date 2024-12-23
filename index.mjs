@@ -13,6 +13,7 @@ const labelMap = {
 };
 
 const api = new TodoistApi(TODOIST_API_TOKEN);
+const today = DateTime.now().setZone("America/Toronto").startOf("day");
 
 export const handler = async (event) => {
   const labelKey = event.queryStringParameters.labelKey ?? null;
@@ -72,7 +73,7 @@ export const handler = async (event) => {
       body: JSON.stringify(presentationTask),
     };
   } catch (error) {
-    console.error("Error fetching scores:", error);
+    console.error("Error fetching task:", error);
     return {
       statusCode: 500,
       body: JSON.stringify({ message: "Internal Server Error" }),
@@ -99,11 +100,9 @@ async function getTasks(label) {
     label,
   });
 
-  const today = DateTime.now().setZone("America/Toronto").startOf("day");
-
-  const taskNotDueInTheFuture = tasks.filter((task) => {
+  const tasksNotScheduledInTheFuture = tasks.filter((task) => {
     return !task.due || DateTime.fromISO(task.due.date) <= today;
   });
 
-  return taskNotDueInTheFuture;
+  return tasksNotScheduledInTheFuture;
 }
