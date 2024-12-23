@@ -1,6 +1,10 @@
 import { handler } from "./index.mjs";
 
-const event = {};
+const event = {
+  queryStringParameters: {
+    labelKey: "chill",
+  },
+};
 
 async function testHandler() {
   try {

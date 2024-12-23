@@ -14,8 +14,7 @@ const labelMap = {
 const api = new TodoistApi(TODOIST_API_TOKEN);
 
 export const handler = async (event) => {
-  // const labelKey = labelMap[event.queryStringParameters.labelKey];
-  const labelKey = "work";
+  const labelKey = event.queryStringParameters.labelKey;
 
   if (!labelKey) {
     return {
