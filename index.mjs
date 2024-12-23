@@ -14,7 +14,7 @@ const labelMap = {
 const api = new TodoistApi(TODOIST_API_TOKEN);
 
 export const handler = async (event) => {
-  const labelKey = event.queryStringParameters.labelKey;
+  const labelKey = event.queryStringParameters.labelKey ?? null;
 
   if (!labelKey) {
     return {
@@ -57,9 +57,9 @@ export const handler = async (event) => {
   const sectionName = await getSectionName(randomTask.sectionId);
 
   const presentationTask = {
-    content: randomTask.content,
     project: projectName,
     section: sectionName,
+    content: randomTask.content,
     url: randomTask.url,
   };
 
