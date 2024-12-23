@@ -1,5 +1,6 @@
 import { TodoistApi } from "@doist/todoist-api-typescript";
 import dotenv from "dotenv";
+import { DateTime } from "luxon";
 
 dotenv.config();
 
@@ -34,7 +35,7 @@ export const handler = async (event) => {
     };
   }
 
-  const labeledTasks = await getUncompletedTasks(labelMap[labelKey]);
+  const labeledTasks = await getTasks(labelMap[labelKey]);
 
   console.log(
     `Found ${labeledTasks.length} uncompleted tasks with label key ${labelKey}`
@@ -92,8 +93,16 @@ function getSectionName(sectionId) {
     .catch(() => "(No section)");
 }
 
-async function getUncompletedTasks(label) {
-  return await api.getTasks({
+async function getTasks(label) {
+  const tasks = await api.getTasks({
     label,
   });
+
+  const today = DateTime.now().setZone("America/Toronto").startOf("day");
+
+  const taskNotDueInTheFuture = tasks.filter((task) => {
+    return !task.due || DateTime.fromISO(task.due.date) <= today;
+  });
+
+  return taskNotDueInTheFuture;
 }
