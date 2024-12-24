@@ -5,7 +5,6 @@ import { DateTime } from "luxon";
 dotenv.config();
 
 const TODOIST_API_TOKEN = process.env.TODOIST_API_TOKEN;
-const BASE_URL = "https://api.todoist.com/sync/v9";
 
 const labelMap = {
   work: "🪖 Work",
@@ -17,6 +16,8 @@ const today = DateTime.now().setZone("America/Toronto").startOf("day");
 
 export const handler = async (event) => {
   const labelKey = event.queryStringParameters.labelKey ?? null;
+  const recurring =
+    event.queryStringParameters.recurring === "true" ? true : false;
 
   if (!labelKey) {
     return {
@@ -37,7 +38,7 @@ export const handler = async (event) => {
   }
 
   try {
-    const labeledTasks = await getTasks(labelMap[labelKey]);
+    const labeledTasks = await getTasks(labelMap[labelKey], recurring);
 
     console.log(
       `Found ${labeledTasks.length} uncompleted tasks with label key ${labelKey}`
@@ -95,7 +96,7 @@ function getSectionName(sectionId) {
     .catch(() => "(No section)");
 }
 
-async function getTasks(label) {
+async function getTasks(label, recurring) {
   const tasks = await api.getTasks({
     label,
   });
@@ -113,10 +114,35 @@ async function getTasks(label) {
     return task.due && DateTime.fromISO(task.due.date).hasSame(today, "day");
   });
 
-  // If we have tasks scheduled for today, let's prioritize those
-  if (tasksScheduledForToday.length) {
-    return tasksScheduledForToday;
+  if (recurring) {
+    const recurringTasksScheduledForToday = tasksScheduledForToday.filter(
+      (task) => task.due?.isRecurring
+    );
+
+    if (recurringTasksScheduledForToday.length) {
+      return recurringTasksScheduledForToday;
+    }
+
+    const recurringTasksNotScheduledInTheFuture =
+      tasksNotScheduledInTheFuture.filter((task) => task.due?.isRecurring);
+
+    if (recurringTasksNotScheduledInTheFuture.length) {
+      return recurringTasksNotScheduledInTheFuture;
+    }
   }
 
-  return tasksNotScheduledInTheFuture;
+  // Repeat with non-recurrings
+
+  const nonRecurringTasksScheduledForToday = tasksScheduledForToday.filter(
+    (task) => !task.due?.isRecurring
+  );
+
+  if (nonRecurringTasksScheduledForToday.length) {
+    return nonRecurringTasksScheduledForToday;
+  }
+
+  const nonRecurringTasksNotScheduledInTheFuture =
+    tasksNotScheduledInTheFuture.filter((task) => !task.due?.isRecurring);
+
+  return nonRecurringTasksNotScheduledInTheFuture;
 }
