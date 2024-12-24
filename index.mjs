@@ -111,7 +111,11 @@ async function getTasks(label, recurring) {
         `Task '${task.id} - ${task.content}' has no due date. Maybe Todoist changed how this field is represented in the API?`
       );
     }
-    return task.due && DateTime.fromISO(task.due.date).hasSame(today, "day");
+    return (
+      task.due &&
+      !task.due.datetime && // Ignore tasks with a time, since these tasks generally cannot be randomly done
+      DateTime.fromISO(task.due.date).hasSame(today, "day")
+    );
   });
 
   if (recurring) {

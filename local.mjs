@@ -3,7 +3,7 @@ import { handler } from "./index.mjs";
 const event = {
   queryStringParameters: {
     labelKey: "work",
-    recurring: "true",
+    recurring: "false",
   },
 };
 
